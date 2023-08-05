@@ -1,0 +1,49 @@
+stages:
+        - build
+        - style
+        - test
+        - deploy
+
+building:
+        stage: build
+        tags:
+                - build
+        script:
+                - cd src/C2_SimpleBashUtils/cat/
+                - make s21_cat
+                - cd ../grep/
+                - make s21_grep
+        artifacts:
+                paths:
+                        - src/C2_SimpleBashUtils/cat/s21_cat
+                        - src/C2_SimpleBashUtils/grep/s21_grep
+                expire_in: 30 days
+style:
+        stage: style
+        tags:
+                - style
+        script:
+                - cd src/C2_SimpleBashUtils/cat/
+                - clang-format -n -Werror s21_cat.c
+                - cd ../grep/
+                - clang-format -n -Werror s21_grep.c
+test:
+        stage: test
+        tags:
+                - test
+        script:
+                - cd src/C2_SimpleBashUtils/cat/
+                - make test
+                - cd ../grep/
+                - make test
+
+deploy:
+        stage: deploy
+        tags:
+                - deploy
+        script:
+                - cd src/C2_SimpleBashUtils/cat/ && make s21_cat
+                - cd ../grep/ && make s21_grep
+                - cd ../../
+                - sudo chmod +x deploy.sh
+                - bash deploy.sh
